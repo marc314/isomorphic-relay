@@ -1,12 +1,12 @@
-import React from 'react';
-import Relay from 'react-relay';
-
+import React from "react";
+import Relay from "react-relay/classic";
+import PropTypes from "prop-types";
 const INACTIVE_READY_STATE = {
   aborted: false,
   done: false,
   error: null,
   ready: false,
-  stale: false,
+  stale: false
 };
 
 export default class IsomorphicRenderer extends React.Component {
@@ -17,7 +17,7 @@ export default class IsomorphicRenderer extends React.Component {
     this.state = {
       active: !!props.initialReadyState,
       readyState: props.initialReadyState || INACTIVE_READY_STATE,
-      retry: this._retry.bind(this),
+      retry: this._retry.bind(this)
     };
   }
 
@@ -28,14 +28,20 @@ export default class IsomorphicRenderer extends React.Component {
     }
   }
 
-  _runQueries({ Container, forceFetch, queryConfig, environment, shouldFetch }) {
+  _runQueries({
+    Container,
+    forceFetch,
+    queryConfig,
+    environment,
+    shouldFetch
+  }) {
     if (!shouldFetch) {
       return;
     }
 
     const onReadyStateChange = readyState => {
       if (!this.mounted) {
-        this._handleReadyStateChange({...readyState, mounted: false});
+        this._handleReadyStateChange({ ...readyState, mounted: false });
         return;
       }
 
@@ -49,7 +55,7 @@ export default class IsomorphicRenderer extends React.Component {
 
       this.setState({
         active: true,
-        readyState,
+        readyState
       });
     };
 
@@ -58,8 +64,9 @@ export default class IsomorphicRenderer extends React.Component {
     }
 
     const querySet = Relay.getQueries(Container, queryConfig);
-    const request = this.pendingRequest =
-      environment[forceFetch ? 'forceFetch' : 'primeCache'](querySet, onReadyStateChange);
+    const request = (this.pendingRequest = environment[
+      forceFetch ? "forceFetch" : "primeCache"
+    ](querySet, onReadyStateChange));
   }
 
   _retry() {
@@ -75,8 +82,8 @@ export default class IsomorphicRenderer extends React.Component {
       nextProps.Container !== this.props.Container ||
       nextProps.environment !== this.props.environment ||
       nextProps.queryConfig !== this.props.queryConfig ||
-      nextProps.shouldFetch && !this.props.shouldFetch ||
-      nextProps.forceFetch && !this.props.forceFetch
+      (nextProps.shouldFetch && !this.props.shouldFetch) ||
+      (nextProps.forceFetch && !this.props.forceFetch)
     ) {
       this._runQueries(nextProps);
       this.setState({ readyState: null });
@@ -105,7 +112,9 @@ export default class IsomorphicRenderer extends React.Component {
   }
 
   render() {
-    const readyState = this.state.active ? this.state.readyState : INACTIVE_READY_STATE;
+    const readyState = this.state.active
+      ? this.state.readyState
+      : INACTIVE_READY_STATE;
 
     return (
       <Relay.ReadyStateRenderer
@@ -122,21 +131,21 @@ export default class IsomorphicRenderer extends React.Component {
 
 IsomorphicRenderer.propTypes = {
   Container: Relay.PropTypes.Container,
-  forceFetch: React.PropTypes.bool,
-  initialReadyState: React.PropTypes.shape({
-    aborted: React.PropTypes.bool.isRequired,
-    done: React.PropTypes.bool.isRequired,
-    error: React.PropTypes.any,
-    ready: React.PropTypes.bool.isRequired,
-    stale: React.PropTypes.bool.isRequired,
+  forceFetch: PropTypes.bool,
+  initialReadyState: PropTypes.shape({
+    aborted: PropTypes.bool.isRequired,
+    done: PropTypes.bool.isRequired,
+    error: PropTypes.any,
+    ready: PropTypes.bool.isRequired,
+    stale: PropTypes.bool.isRequired
   }),
-  onReadyStateChange: React.PropTypes.func,
+  onReadyStateChange: PropTypes.func,
   queryConfig: Relay.PropTypes.QueryConfig.isRequired,
   environment: Relay.PropTypes.Environment,
-  render: React.PropTypes.func,
-  shouldFetch: React.PropTypes.bool,
+  render: PropTypes.func,
+  shouldFetch: PropTypes.bool
 };
 
 IsomorphicRenderer.defaultProps = {
-  shouldFetch: true,
+  shouldFetch: true
 };
